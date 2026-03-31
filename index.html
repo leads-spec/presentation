@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Avatar Restaurante Demo</title>
+  <style>
+    body {
+      font-family: Arial;
+      background: #111;
+      color: white;
+      display: flex;
+      height: 100vh;
+      margin: 0;
+    }
+
+    .left {
+      width: 60%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      background: #000;
+    }
+
+    video {
+      width: 80%;
+      border-radius: 20px;
+    }
+
+    .right {
+      width: 40%;
+      padding: 20px;
+      background: #1c1c1c;
+    }
+
+    button {
+      display: block;
+      width: 100%;
+      margin: 10px 0;
+      padding: 15px;
+      border: none;
+      border-radius: 10px;
+      background: #ff5a5f;
+      color: white;
+      font-size: 16px;
+      cursor: pointer;
+    }
+
+    .pedido {
+      margin-top: 20px;
+      background: #333;
+      padding: 15px;
+      border-radius: 10px;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="left">
+    <video id="avatar" autoplay controls>
+      <source src="videos/welcome.mp4" type="video/mp4">
+    </video>
+    <h2 id="mensaje">Hola 👋 ¿Qué te gustaría ordenar?</h2>
+  </div>
+
+  <div class="right">
+    <div id="botones"></div>
+
+    <div class="pedido">
+      <h3>🧾 Tu pedido</h3>
+      <ul id="lista"></ul>
+      <p id="total">Total: $0</p>
+    </div>
+  </div>
+
+<script>
+let estado = "inicio";
+let pedido = [];
+let total = 0;
+
+const avatar = document.getElementById("avatar");
+const mensaje = document.getElementById("mensaje");
+const botones = document.getElementById("botones");
+const lista = document.getElementById("lista");
+const totalUI = document.getElementById("total");
+
+function cambiarVideo(src, texto) {
+  avatar.src = src;
+  mensaje.innerText = texto;
+}
+
+function renderBotones(opciones) {
+  botones.innerHTML = "";
+  opciones.forEach(op => {
+    const btn = document.createElement("button");
+    btn.innerText = op.texto;
+    btn.onclick = op.accion;
+    botones.appendChild(btn);
+  });
+}
+
+function actualizarPedido() {
+  lista.innerHTML = "";
+  pedido.forEach(p => {
+    const li = document.createElement("li");
+    li.innerText = p.nombre + " - $" + p.precio;
+    lista.appendChild(li);
+  });
+  totalUI.innerText = "Total: $" + total;
+}
+
+// ESTADOS
+
+function inicio() {
+  estado = "inicio";
+  cambiarVideo("videos/welcome.mp4", "Hola 👋 ¿Qué te gustaría ordenar?");
+  renderBotones([
+    { texto: "Ver menú", accion: menu }
+  ]);
+}
+
+function menu() {
+  estado = "menu";
+  cambiarVideo("videos/menu.mp4", "Aquí tienes nuestro menú 😄");
+  renderBotones([
+    { texto: "🍔 Hamburguesa BBQ - $18.000", accion: () => agregar("Hamburguesa BBQ", 18000) },
+    { texto: "🍔 Clásica - $15.000", accion: () => agregar("Hamburguesa Clásica", 15000) },
+    { texto: "🥤 Gaseosa - $5.000", accion: () => agregar("Gaseosa", 5000) },
+    { texto: "✅ Confirmar pedido", accion: confirmar }
+  ]);
+}
+
+function agregar(nombre, precio) {
+  pedido.push({ nombre, precio });
+  total += precio;
+  actualizarPedido();
+
+  cambiarVideo("videos/good_choice.mp4", "¡Excelente elección! 😍");
+}
+
+function confirmar() {
+  estado = "confirmar";
+  cambiarVideo("videos/confirm.mp4", "¿Confirmamos tu pedido?");
+  renderBotones([
+    { texto: "Confirmar ✅", accion: finalizar },
+    { texto: "Seguir pidiendo", accion: menu }
+  ]);
+}
+
+function finalizar() {
+  cambiarVideo("videos/welcome.mp4", "🎉 Pedido enviado a cocina");
+  botones.innerHTML = "";
+}
+
+inicio();
+</script>
+
+</body>
+</html>
